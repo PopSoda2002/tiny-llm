@@ -24,7 +24,13 @@ class Qwen2MultiHeadAttention:
         max_seq_len: int = 32768,
         theta: int = 1000000,
     ):
-        pass
+        self.wq = wq
+        self.wk = wk
+        self.wv = wv
+        self.wo = wo
+        self.bq = bq
+        self.bk = bk
+        self.bv = bv
 
     def __call__(
         self,
@@ -32,7 +38,12 @@ class Qwen2MultiHeadAttention:
         offset: int,
         mask: mx.array | str | None = None,
     ) -> mx.array:
-        pass
+        proj_query = linear(x, self.wq)
+        proj_key = linear(x, self.wk)
+        proj_value = linear(x, self.wv)
+        output = scaled_dot_product_attention_grouped(proj_query, proj_key, proj_value, mask=mask)
+        output = linear(output, self.wo)
+        return output
 
 
 class Qwen2MLP:
